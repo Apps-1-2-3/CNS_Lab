@@ -1,78 +1,58 @@
+
 #include <iostream>
 using namespace std;
 
-// Function to find GCD
-int gcd(int a, int b) {
-    while (b != 0) {
-        int temp = b;
-        b = a % b;
-        a = temp;
+int gcd(int a,int b){
+    while(b){
+        int t=b;
+        b=a%b;
+        a=t;
     }
     return a;
 }
 
-// Function to find modular inverse
-int modInverse(int e, int phi) {
-    for (int d = 1; d < phi; d++) {
-        if ((e * d) % phi == 1) {
-            return d;
-        }
+int mod(int b,int p,int m){
+    int r=1;
+    while(p--){
+        r=(r*b)%m;
     }
-    return -1;
-}
-
-// Function to calculate (base^power) % mod
-int powerMod(int base, int power, int mod) {
-    int result = 1;
-
-    for (int i = 1; i <= power; i++) {
-        result = (result * base) % mod;
-    }
-
-    return result;
+    return r;
 }
 
 int main() {
-    int p, q;
-    int n, phi;
-    int e, d;
-    int message, cipher, decrypted;
+    int p,q,n,phi,e,d=1,msg,c,dec;
 
-    cout << "Enter two prime numbers p and q: ";
-    cin >> p >> q;
+    cout<<"Enter two prime numbers p and q: ";
+    cin>>p>>q;
 
-    n = p * q;
-    phi = (p - 1) * (q - 1);
+    n=p*q;
+    phi=(p-1)*(q-1);
 
-    cout << "n = " << n << endl;
-    cout << "phi = " << phi << endl;
+    cout<<"n = "<<n<<endl;
+    cout<<"phi = "<<phi<<endl;
 
-    cout << "Enter e such that gcd(e, phi) = 1: ";
-    cin >> e;
+    cout<<"Enter e such that gcd(e, phi) = 1: ";
+    cin>>e;
 
-    if (gcd(e, phi) != 1) {
-        cout << "Invalid e. gcd(e, phi) is not 1." << endl;
+    if(gcd(e,phi)!=1){
+        cout<<"Invalid e"<<endl;
         return 0;
     }
 
-    d = modInverse(e, phi);
+    while((e*d)%phi!=1)
+        d++;
 
-    if (d == -1) {
-        cout << "Private key not found." << endl;
-        return 0;
-    }
+    cout<<"Public Key  = ("<<e<<", "<<n<<")"<<endl;
+    cout<<"Private Key = ("<<d<<", "<<n<<")"<<endl;
 
-    cout << "Public Key  = (" << e << ", " << n << ")" << endl;
-    cout << "Private Key = (" << d << ", " << n << ")" << endl;
+    cout<<"Enter message less than "<<n<<": ";
+    cin>>msg;
 
-    cout << "Enter message less than " << n << ": ";
-    cin >> message;
+    c=mod(msg,e,n);
+    cout<<"Encrypted message = "<<c<<endl;
 
-    cipher = powerMod(message, e, n);
-    cout << "Encrypted message = " << cipher << endl;
-
-    decrypted = powerMod(cipher, d, n);
-    cout << "Decrypted message = " << decrypted << endl;
+    dec=mod(c,d,n);
+    cout<<"Decrypted message = "<<dec<<endl;
 
     return 0;
 }
