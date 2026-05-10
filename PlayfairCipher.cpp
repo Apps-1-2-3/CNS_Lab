@@ -1,4 +1,5 @@
 #include<iostream>
+#include <cctype>
 using namespace std;
 
 char m[5][5];
@@ -6,9 +7,13 @@ char m[5][5];
 void makeMatrix(string k){
     string s="",a="ABCDEFGHIKLMNOPQRSTUVWXYZ";
 
-    for(char c:k)
+    for(char &c:k){
+        c=toupper(c);
+        if(c=='J') c='I';
+
         if(s.find(c)==-1)
             s+=c;
+    }
 
     for(char c:a)
         if(s.find(c)==-1)
@@ -21,39 +26,37 @@ void makeMatrix(string k){
             m[i][j]=s[x++];
 }
 
-void find(char c,int &r,int &col)
-{
+void findPos(char c,int &r,int &col){
+
+    if(c=='J') c='I';
+
     for(int i=0;i<5;i++)
-    {
         for(int j=0;j<5;j++)
-        {
-            if(m[i][j]==c)
-            {
+            if(m[i][j]==c){
                 r=i;
                 col=j;
             }
-        }
-    }
 }
 
-string enc(string t)
-{
+string process(string t,int dir){
+
     string c="";
 
     for(int i=0;i<t.size();i+=2){
+
         int r1,c1,r2,c2;
 
-        find(t[i],r1,c1);
-        find(t[i+1],r2,c2);
+        findPos(t[i],r1,c1);
+        findPos(t[i+1],r2,c2);
 
         if(r1==r2){
-            c+=m[r1][(c1+1)%5];
-            c+=m[r2][(c2+1)%5];
+            c+=m[r1][(c1+dir+5)%5];
+            c+=m[r2][(c2+dir+5)%5];
         }
 
         else if(c1==c2){
-            c+=m[(r1+1)%5][c1];
-            c+=m[(r2+1)%5][c2];
+            c+=m[(r1+dir+5)%5][c1];
+            c+=m[(r2+dir+5)%5][c2];
         }
 
         else{
@@ -65,38 +68,8 @@ string enc(string t)
     return c;
 }
 
-string dec(string t){
-    string c="";
-
-    for(int i=0;i<t.size();i+=2){
-        int r1,c1,r2,c2;
-
-        find(t[i],r1,c1);
-        find(t[i+1],r2,c2);
-
-        if(r1==r2)
-        {
-            c+=m[r1][(c1+4)%5];
-            c+=m[r2][(c2+4)%5];
-        }
-
-        else if(c1==c2)
-        {
-            c+=m[(r1+4)%5][c1];
-            c+=m[(r2+4)%5][c2];
-        }
-
-        else
-        {
-            c+=m[r1][c2];
-            c+=m[r2][c1];
-        }
-    }
-
-    return c;
-}
-
 int main(){
+
     string k,t;
 
     cout<<"Key: ";
@@ -105,12 +78,20 @@ int main(){
     cout<<"Text: ";
     cin>>t;
 
+    for(char &c:t){
+        c=toupper(c);
+        if(c=='J') c='I';
+    }
+
+    if(t.size()%2)
+        t+='X';
+
     makeMatrix(k);
 
-    string e=enc(t);
+    string e=process(t,1);
 
     cout<<"Encrypted = "<<e<<endl;
-    cout<<"Decrypted = "<<dec(e);
+    cout<<"Decrypted = "<<process(e,-1);
 
     return 0;
 }
